@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- PSR LONDON — Full lockup, light on transparent (for dark backgrounds) -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 360 165" fill="none" aria-label="PSR LONDON">
+  <defs>
+    <style>
+      @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300&amp;family=Inter:wght@300&amp;display=swap');
+      .psr-wordmark {
+        font-family: 'Cormorant Garamond', Georgia, 'Times New Roman', serif;
+        font-weight: 300;
+        letter-spacing: 0.35em;
+      }
+      .psr-sub {
+        font-family: 'Inter', system-ui, -apple-system, sans-serif;
+        font-weight: 300;
+        letter-spacing: 0.5em;
+      }
+    </style>
+  </defs>
+
+  <!-- Diamond mark — centered at (180, 42), scaled 54×54 from 22×22 viewBox -->
+  <g transform="translate(153, 15) scale(2.4545)">
+    <path d="M11 1 L21 11 L11 21 L1 11 Z" stroke="#c9a96e" stroke-width="0.75"/>
+    <path d="M11 5.5 L16.5 11 L11 16.5 L5.5 11 Z" stroke="#c9a96e" stroke-width="0.5" opacity="0.5"/>
+    <path d="M11 9 L13 11 L11 13 L9 11 Z" fill="#c9a96e" opacity="0.4"/>
+  </g>
+
+  <!-- Vertical divider -->
+  <line x1="180" y1="74" x2="180" y2="92" stroke="#c9a96e" stroke-width="0.75" opacity="0.3"/>
+
+  <!-- PSR LONDON wordmark -->
+  <text
+    class="psr-wordmark"
+    x="180"
+    y="127"
+    font-size="32"
+    fill="#f5f3ef"
+    text-anchor="middle"
+  >PSR LONDON</text>
+
+  <!-- Curated Collection tagline -->
+  <text
+    class="psr-sub"
+    x="181"
+    y="149"
+    font-size="8.5"
+    fill="#8a8a8a"
+    text-anchor="middle"
+  >CURATED COLLECTION</text>
+</svg>
