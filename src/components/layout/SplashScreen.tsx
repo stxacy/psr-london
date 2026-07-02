@@ -1,6 +1,7 @@
 'use client';
 
-import { useEffect, useState, useCallback } from 'react';
+import { useEffect, useState, useCallback, useRef } from 'react';
+import { usePathname } from 'next/navigation';
 
 function DiamondMark() {
   return (
@@ -22,6 +23,8 @@ function DiamondMark() {
 export default function SplashScreen() {
   const [phase, setPhase] = useState<'show' | 'hiding' | 'gone'>('show');
   const [isFirstVisit, setIsFirstVisit] = useState(true);
+  const pathname = usePathname();
+  const prevPathname = useRef<string | null>(null);
 
   const dismiss = useCallback(() => {
     sessionStorage.setItem('psr_entered', '1');
@@ -30,18 +33,33 @@ export default function SplashScreen() {
   }, []);
 
   useEffect(() => {
-    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
-      setPhase('gone');
-      return;
-    }
+    // Skip if pathname hasn't actually changed
+    if (prevPathname.current === pathname) return;
 
-    const hasEntered = sessionStorage.getItem('psr_entered');
-    if (hasEntered) {
+    const prev = prevPathname.current;
+    prevPathname.current = pathname;
+
+    if (prev === null) {
+      // Initial hard page load
+      if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+        setPhase('gone');
+        return;
+      }
+      const hasEntered = sessionStorage.getItem('psr_entered');
+      if (hasEntered) {
+        setIsFirstVisit(false);
+        const timer = setTimeout(dismiss, 700);
+        return () => clearTimeout(timer);
+      }
+      // First ever visit — wait for click
+    } else {
+      // Client-side navigation between pages
       setIsFirstVisit(false);
+      setPhase('show');
       const timer = setTimeout(dismiss, 700);
       return () => clearTimeout(timer);
     }
-  }, [dismiss]);
+  }, [pathname, dismiss]);
 
   if (phase === 'gone') return null;
 
@@ -53,7 +71,6 @@ export default function SplashScreen() {
       }}
       onClick={isFirstVisit ? dismiss : undefined}
     >
-      {/* Subtle radial glow */}
       <div
         className="absolute inset-0 pointer-events-none"
         style={{
@@ -61,7 +78,6 @@ export default function SplashScreen() {
         }}
       />
 
-      {/* Content */}
       <div
         className="relative z-10 flex flex-col items-center gap-5"
         style={{ animation: 'splash-content-in 0.8s cubic-bezier(0.22, 1, 0.36, 1) both' }}
