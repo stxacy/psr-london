@@ -10,7 +10,7 @@ function DiamondMark() {
       viewBox="0 0 22 22"
       fill="none"
       aria-hidden
-      style={{ animation: 'diamond-breathe 3.5s ease-in-out infinite' }}
+      style={{ animation: 'diamond-breathe 2.625s ease-in-out infinite' }}
     >
       <path d="M11 1 L21 11 L11 21 L1 11 Z" stroke="#c9a96e" strokeWidth="0.75" />
       <path d="M11 5.5 L16.5 11 L11 16.5 L5.5 11 Z" stroke="#c9a96e" strokeWidth="0.5" opacity="0.5" />
@@ -28,7 +28,7 @@ export default function SplashScreen() {
   const dismiss = useCallback(() => {
     sessionStorage.setItem('psr_entered', '1');
     setHiding(true);
-    setTimeout(() => setGone(true), 550);
+    setTimeout(() => setGone(true), 413);
   }, []);
 
   useEffect(() => {
@@ -41,7 +41,7 @@ export default function SplashScreen() {
     setFirstVisit(!hasEntered);
 
     if (hasEntered) {
-      const t = setTimeout(dismiss, 1200);
+      const t = setTimeout(dismiss, 900);
       return () => clearTimeout(t);
     }
   }, [dismiss]);
@@ -52,7 +52,7 @@ export default function SplashScreen() {
     <div
       className="fixed inset-0 z-[200] bg-psr-black flex flex-col items-center justify-center select-none"
       style={{
-        animation: hiding ? 'splash-out 0.55s ease forwards' : undefined,
+        animation: hiding ? 'splash-out 0.41s ease forwards' : undefined,
         cursor: firstVisit ? 'pointer' : 'default',
       }}
       onClick={firstVisit === true ? dismiss : undefined}
@@ -67,7 +67,7 @@ export default function SplashScreen() {
 
       <div
         className="relative z-10 flex flex-col items-center gap-5"
-        style={{ animation: 'splash-content-in 0.5s cubic-bezier(0.22, 1, 0.36, 1) both' }}
+        style={{ animation: 'splash-content-in 0.375s cubic-bezier(0.22, 1, 0.36, 1) both' }}
       >
         <DiamondMark />
 
