@@ -2,6 +2,7 @@ import type { Metadata } from 'next'
 import { Cormorant_Garamond, Inter } from 'next/font/google'
 import Header from '@/components/layout/Header'
 import Footer from '@/components/layout/Footer'
+import '../globals.css'
 
 const cormorant = Cormorant_Garamond({
   variable: '--font-cormorant',
