@@ -1,7 +1,6 @@
 'use client';
 
-import { useCallback, useEffect, useRef, useState } from 'react';
-import { usePathname } from 'next/navigation';
+import { useCallback, useEffect, useState } from 'react';
 
 function DiamondMark() {
   return (
@@ -20,33 +19,43 @@ function DiamondMark() {
   );
 }
 
-function SplashOverlay({
-  firstVisit,
-  onDismiss,
-}: {
-  firstVisit: boolean;
-  onDismiss: () => void;
-}) {
+export default function SplashScreen() {
   const [hiding, setHiding] = useState(false);
+  const [gone, setGone] = useState(false);
+  // null = unknown until client effect runs (avoids SSR flash of hint on return visits)
+  const [firstVisit, setFirstVisit] = useState<boolean | null>(null);
 
   const dismiss = useCallback(() => {
     sessionStorage.setItem('psr_entered', '1');
     setHiding(true);
-    setTimeout(onDismiss, 550);
-  }, [onDismiss]);
+    setTimeout(() => setGone(true), 550);
+  }, []);
 
   useEffect(() => {
-    if (!firstVisit) {
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      setGone(true);
+      return;
+    }
+
+    const hasEntered = !!sessionStorage.getItem('psr_entered');
+    setFirstVisit(!hasEntered);
+
+    if (hasEntered) {
       const t = setTimeout(dismiss, 1200);
       return () => clearTimeout(t);
     }
-  }, [firstVisit, dismiss]);
+  }, [dismiss]);
+
+  if (gone) return null;
 
   return (
     <div
-      className="fixed inset-0 z-[200] bg-psr-black flex flex-col items-center justify-center cursor-pointer select-none"
-      style={{ animation: hiding ? 'splash-out 0.55s ease forwards' : undefined }}
-      onClick={firstVisit ? dismiss : undefined}
+      className="fixed inset-0 z-[200] bg-psr-black flex flex-col items-center justify-center select-none"
+      style={{
+        animation: hiding ? 'splash-out 0.55s ease forwards' : undefined,
+        cursor: firstVisit ? 'pointer' : 'default',
+      }}
+      onClick={firstVisit === true ? dismiss : undefined}
     >
       <div
         className="absolute inset-0 pointer-events-none"
@@ -79,7 +88,7 @@ function SplashOverlay({
           </span>
         </div>
 
-        {firstVisit && (
+        {firstVisit === true && (
           <p
             className="font-sans text-psr-grey-mid uppercase mt-6"
             style={{ fontSize: '10px', letterSpacing: '0.4em' }}
@@ -89,45 +98,5 @@ function SplashOverlay({
         )}
       </div>
     </div>
-  );
-}
-
-type SplashState = { key: number; firstVisit: boolean } | null;
-
-export default function SplashScreen() {
-  const pathname = usePathname();
-  const prevPathname = useRef<string | null>(null);
-  // Start visible so SSR/initial paint shows the splash immediately
-  const [splashState, setSplashState] = useState<SplashState>({ key: 0, firstVisit: true });
-
-  const handleDismiss = useCallback(() => setSplashState(null), []);
-
-  useEffect(() => {
-    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
-      setSplashState(null);
-      return;
-    }
-
-    const prev = prevPathname.current;
-    prevPathname.current = pathname;
-
-    if (prev === null) {
-      // Initial hard page load — determine first vs return visit
-      const hasEntered = !!sessionStorage.getItem('psr_entered');
-      setSplashState({ key: 0, firstVisit: !hasEntered });
-    } else if (prev !== pathname) {
-      // Client-side navigation — remount overlay with new key
-      setSplashState(s => ({ key: (s?.key ?? 0) + 1, firstVisit: false }));
-    }
-  }, [pathname]);
-
-  if (!splashState) return null;
-
-  return (
-    <SplashOverlay
-      key={splashState.key}
-      firstVisit={splashState.firstVisit}
-      onDismiss={handleDismiss}
-    />
   );
 }
