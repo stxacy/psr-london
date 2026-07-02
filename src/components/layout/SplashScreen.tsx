@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState, useCallback, useRef } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { usePathname } from 'next/navigation';
 
 function DiamondMark() {
@@ -20,67 +20,45 @@ function DiamondMark() {
   );
 }
 
-export default function SplashScreen() {
-  const [phase, setPhase] = useState<'show' | 'hiding' | 'gone'>('show');
-  const [isFirstVisit, setIsFirstVisit] = useState(true);
-  const pathname = usePathname();
-  const prevPathname = useRef<string | null>(null);
+function SplashOverlay({
+  firstVisit,
+  onDismiss,
+}: {
+  firstVisit: boolean;
+  onDismiss: () => void;
+}) {
+  const [hiding, setHiding] = useState(false);
 
   const dismiss = useCallback(() => {
     sessionStorage.setItem('psr_entered', '1');
-    setPhase('hiding');
-    setTimeout(() => setPhase('gone'), 550);
-  }, []);
+    setHiding(true);
+    setTimeout(onDismiss, 550);
+  }, [onDismiss]);
 
   useEffect(() => {
-    // Skip if pathname hasn't actually changed
-    if (prevPathname.current === pathname) return;
-
-    const prev = prevPathname.current;
-    prevPathname.current = pathname;
-
-    if (prev === null) {
-      // Initial hard page load
-      if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
-        setPhase('gone');
-        return;
-      }
-      const hasEntered = sessionStorage.getItem('psr_entered');
-      if (hasEntered) {
-        setIsFirstVisit(false);
-        const timer = setTimeout(dismiss, 700);
-        return () => clearTimeout(timer);
-      }
-      // First ever visit — wait for click
-    } else {
-      // Client-side navigation between pages
-      setIsFirstVisit(false);
-      setPhase('show');
-      const timer = setTimeout(dismiss, 700);
-      return () => clearTimeout(timer);
+    if (!firstVisit) {
+      const t = setTimeout(dismiss, 1200);
+      return () => clearTimeout(t);
     }
-  }, [pathname, dismiss]);
-
-  if (phase === 'gone') return null;
+  }, [firstVisit, dismiss]);
 
   return (
     <div
       className="fixed inset-0 z-[200] bg-psr-black flex flex-col items-center justify-center cursor-pointer select-none"
-      style={{
-        animation: phase === 'hiding' ? 'splash-out 0.55s ease forwards' : undefined,
-      }}
-      onClick={isFirstVisit ? dismiss : undefined}
+      style={{ animation: hiding ? 'splash-out 0.55s ease forwards' : undefined }}
+      onClick={firstVisit ? dismiss : undefined}
     >
       <div
         className="absolute inset-0 pointer-events-none"
         style={{
-          background: 'radial-gradient(ellipse 60% 50% at 50% 50%, rgba(201,169,110,0.05) 0%, transparent 70%)',
+          background:
+            'radial-gradient(ellipse 60% 50% at 50% 50%, rgba(201,169,110,0.05) 0%, transparent 70%)',
         }}
       />
 
       <div
         className="relative z-10 flex flex-col items-center gap-5"
-        style={{ animation: 'splash-content-in 0.8s cubic-bezier(0.22, 1, 0.36, 1) both' }}
+        style={{ animation: 'splash-content-in 0.5s cubic-bezier(0.22, 1, 0.36, 1) both' }}
       >
         <DiamondMark />
 
@@ -101,7 +79,7 @@ export default function SplashScreen() {
           </span>
         </div>
 
-        {isFirstVisit && (
+        {firstVisit && (
           <p
             className="font-sans text-psr-grey-mid uppercase mt-6"
             style={{ fontSize: '10px', letterSpacing: '0.4em' }}
@@ -111,5 +89,45 @@ export default function SplashScreen() {
         )}
       </div>
     </div>
+  );
+}
+
+type SplashState = { key: number; firstVisit: boolean } | null;
+
+export default function SplashScreen() {
+  const pathname = usePathname();
+  const prevPathname = useRef<string | null>(null);
+  // Start visible so SSR/initial paint shows the splash immediately
+  const [splashState, setSplashState] = useState<SplashState>({ key: 0, firstVisit: true });
+
+  const handleDismiss = useCallback(() => setSplashState(null), []);
+
+  useEffect(() => {
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      setSplashState(null);
+      return;
+    }
+
+    const prev = prevPathname.current;
+    prevPathname.current = pathname;
+
+    if (prev === null) {
+      // Initial hard page load — determine first vs return visit
+      const hasEntered = !!sessionStorage.getItem('psr_entered');
+      setSplashState({ key: 0, firstVisit: !hasEntered });
+    } else if (prev !== pathname) {
+      // Client-side navigation — remount overlay with new key
+      setSplashState(s => ({ key: (s?.key ?? 0) + 1, firstVisit: false }));
+    }
+  }, [pathname]);
+
+  if (!splashState) return null;
+
+  return (
+    <SplashOverlay
+      key={splashState.key}
+      firstVisit={splashState.firstVisit}
+      onDismiss={handleDismiss}
+    />
   );
 }
