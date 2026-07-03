@@ -20,9 +20,22 @@ const inter = Inter({
 })
 
 export const metadata: Metadata = {
-  title: 'PSR LONDON — The Standard for Exceptional Vehicles',
+  title: {
+    default: 'PSR LONDON — The Standard for Exceptional Vehicles',
+    template: '%s | PSR LONDON',
+  },
   description:
     "London's curated luxury automotive marketplace. Every vehicle on PSR LONDON is personally vetted by our team before it appears on the platform.",
+  metadataBase: new URL('https://psr-london.vercel.app'),
+  openGraph: {
+    siteName: 'PSR LONDON',
+    locale: 'en_GB',
+    type: 'website',
+  },
+  robots: {
+    index: true,
+    follow: true,
+  },
 }
 
 export default function SiteLayout({ children }: { children: React.ReactNode }) {

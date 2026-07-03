@@ -1,6 +1,21 @@
+import type { Metadata } from 'next';
 import Link from 'next/link';
 import VehicleCard from '@/components/vehicles/VehicleCard';
 import { featuredVehicles } from '@/lib/mock-data';
+
+export const metadata: Metadata = {
+  title: 'PSR LONDON — The Standard for Exceptional Vehicles',
+  description:
+    "London's curated luxury automotive marketplace. Every vehicle on PSR LONDON is personally vetted by our team before it appears on the platform.",
+  openGraph: {
+    title: 'PSR LONDON — The Standard for Exceptional Vehicles',
+    description:
+      "London's curated luxury automotive marketplace. Every vehicle is personally vetted before listing.",
+    siteName: 'PSR LONDON',
+    locale: 'en_GB',
+    type: 'website',
+  },
+};
 
 export default function HomePage() {
   return (

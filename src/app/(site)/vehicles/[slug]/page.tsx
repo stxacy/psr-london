@@ -2,6 +2,7 @@ import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { getPayloadClient } from '@/lib/payload'
 import type { Vehicle } from '@/lib/types'
+import EnquireButton from '@/components/vehicles/EnquireButton'
 
 type Props = {
   params: Promise<{ slug: string }>;
@@ -158,9 +159,7 @@ export default async function VehicleDetailPage({ params }: Props) {
                 </p>
 
                 <div className="mt-6 space-y-3">
-                  <button className="w-full px-6 py-4 bg-psr-gold text-psr-black text-[11px] tracking-[0.25em] uppercase font-sans font-medium hover:bg-psr-gold-light transition-colors">
-                    Enquire Now
-                  </button>
+                  <EnquireButton vehicleId={vehicle.id} vehicleTitle={vehicle.title} />
                   <button className="w-full px-6 py-4 border border-white/15 text-psr-cream text-[11px] tracking-[0.25em] uppercase font-sans hover:border-white/30 transition-colors">
                     Save Vehicle
                   </button>
