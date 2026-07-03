@@ -2,6 +2,8 @@ import { getPayloadClient } from '@/lib/payload'
 import type { Vehicle } from '@/lib/types'
 import VehiclesClient from '@/components/vehicles/VehiclesClient'
 
+export const dynamic = 'force-dynamic'
+
 export const metadata = {
   title: 'The Collection — PSR LONDON',
   description:

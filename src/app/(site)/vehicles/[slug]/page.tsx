@@ -4,6 +4,8 @@ import { getPayloadClient } from '@/lib/payload'
 import type { Vehicle } from '@/lib/types'
 import EnquireButton from '@/components/vehicles/EnquireButton'
 
+export const dynamic = 'force-dynamic'
+
 type Props = {
   params: Promise<{ slug: string }>;
 };
