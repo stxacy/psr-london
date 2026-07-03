@@ -11,7 +11,7 @@ export const Vehicles: CollectionConfig = {
   access: {
     read: ({ req: { user } }) => {
       if (user) return true
-      return { status: { equals: 'live' } }
+      return { or: [{ status: { equals: 'live' } }, { status: { equals: 'sold' } }] }
     },
     create: ({ req: { user } }) => !!user,
     update: ({ req: { user } }) => !!user,

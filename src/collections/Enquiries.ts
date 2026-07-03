@@ -54,11 +54,45 @@ export const Enquiries: CollectionConfig = {
       required: true,
     },
     {
+      name: 'contactLog',
+      type: 'array',
+      admin: {
+        description: 'Log each time you contact the enquirer',
+        initCollapsed: true,
+      },
+      fields: [
+        {
+          type: 'row',
+          fields: [
+            {
+              name: 'date',
+              type: 'date',
+              required: true,
+              defaultValue: () => new Date().toISOString(),
+              admin: {
+                date: { pickerAppearance: 'dayAndTime' },
+              },
+            },
+            {
+              name: 'method',
+              type: 'select',
+              options: ['Email', 'Phone', 'In Person', 'Other'],
+            },
+          ],
+        },
+        {
+          name: 'note',
+          type: 'textarea',
+          required: true,
+          admin: { placeholder: 'What was discussed or agreed...' },
+        },
+      ],
+    },
+    {
       name: 'adminNotes',
       type: 'textarea',
       admin: {
         description: 'Internal notes — not visible to the enquirer',
-        condition: () => true,
       },
     },
   ],

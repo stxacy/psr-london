@@ -18,6 +18,13 @@ export default function VehicleCard({ vehicle }: Props) {
             PSR
           </span>
         </div>
+        {vehicle.status === 'sold' && (
+          <div className="absolute inset-0 bg-psr-black/60 flex items-center justify-center">
+            <span className="text-[11px] tracking-[0.4em] uppercase font-sans text-psr-grey-light border border-white/20 px-4 py-2">
+              Sold
+            </span>
+          </div>
+        )}
         <div className="absolute top-4 left-4">
           <span
             className={`text-[10px] tracking-[0.2em] uppercase px-3 py-1.5 font-sans ${

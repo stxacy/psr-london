@@ -17,7 +17,7 @@ async function getVehicle(slug: string): Promise<Vehicle | null> {
     where: {
       and: [
         { slug: { equals: slug } },
-        { status: { equals: 'live' } },
+        { or: [{ status: { equals: 'live' } }, { status: { equals: 'sold' } }] },
       ],
     },
     limit: 1,
@@ -65,6 +65,22 @@ export default async function VehicleDetailPage({ params }: Props) {
           </div>
         </div>
       </div>
+
+      {vehicle.status === 'sold' && (
+        <div className="bg-psr-charcoal border-b border-white/5">
+          <div className="max-w-7xl mx-auto px-6 lg:px-12 py-4 flex items-center gap-4">
+            <span className="text-[10px] tracking-[0.3em] uppercase font-sans text-psr-grey-mid">
+              This vehicle has been sold
+            </span>
+            <Link
+              href="/vehicles"
+              className="text-[10px] tracking-[0.2em] uppercase font-sans text-psr-gold hover:underline underline-offset-4"
+            >
+              Browse the collection →
+            </Link>
+          </div>
+        </div>
+      )}
 
       <div className="max-w-7xl mx-auto px-6 lg:px-12 py-14 lg:py-20">
         <div className="mb-8">
@@ -161,7 +177,15 @@ export default async function VehicleDetailPage({ params }: Props) {
                 </p>
 
                 <div className="mt-6 space-y-3">
-                  <EnquireButton vehicleId={vehicle.id} vehicleTitle={vehicle.title} />
+                  {vehicle.status === 'sold' ? (
+                    <div className="w-full px-6 py-4 border border-white/10 text-center">
+                      <p className="text-[11px] tracking-[0.25em] uppercase font-sans text-psr-grey-mid">
+                        Vehicle Sold
+                      </p>
+                    </div>
+                  ) : (
+                    <EnquireButton vehicleId={vehicle.id} vehicleTitle={vehicle.title} />
+                  )}
                   <button className="w-full px-6 py-4 border border-white/15 text-psr-cream text-[11px] tracking-[0.25em] uppercase font-sans hover:border-white/30 transition-colors">
                     Save Vehicle
                   </button>
