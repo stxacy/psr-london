@@ -11,18 +11,22 @@ type Props = {
 };
 
 async function getVehicle(slug: string): Promise<Vehicle | null> {
-  const payload = await getPayloadClient()
-  const { docs } = await payload.find({
-    collection: 'vehicles',
-    where: {
-      and: [
-        { slug: { equals: slug } },
-        { or: [{ status: { equals: 'live' } }, { status: { equals: 'sold' } }] },
-      ],
-    },
-    limit: 1,
-  })
-  return (docs[0] as unknown as Vehicle) ?? null
+  try {
+    const payload = await getPayloadClient()
+    const { docs } = await payload.find({
+      collection: 'vehicles',
+      where: {
+        and: [
+          { slug: { equals: slug } },
+          { or: [{ status: { equals: 'live' } }, { status: { equals: 'sold' } }] },
+        ],
+      },
+      limit: 1,
+    })
+    return (docs[0] as unknown as Vehicle) ?? null
+  } catch {
+    return null
+  }
 }
 
 export async function generateMetadata({ params }: Props) {

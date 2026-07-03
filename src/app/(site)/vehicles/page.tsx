@@ -11,13 +11,16 @@ export const metadata = {
 }
 
 export default async function VehiclesPage() {
-  const payload = await getPayloadClient()
-  const { docs } = await payload.find({
-    collection: 'vehicles',
-    where: { status: { equals: 'live' } },
-    sort: '-createdAt',
-    limit: 200,
-  })
-
-  return <VehiclesClient vehicles={docs as unknown as Vehicle[]} />
+  try {
+    const payload = await getPayloadClient()
+    const { docs } = await payload.find({
+      collection: 'vehicles',
+      where: { status: { equals: 'live' } },
+      sort: '-createdAt',
+      limit: 200,
+    })
+    return <VehiclesClient vehicles={docs as unknown as Vehicle[]} />
+  } catch {
+    return <VehiclesClient vehicles={[]} />
+  }
 }
