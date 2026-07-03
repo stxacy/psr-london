@@ -11,6 +11,7 @@ export const Enquiries: CollectionConfig = {
   admin: {
     useAsTitle: 'vehicleTitle',
     defaultColumns: ['vehicleTitle', 'name', 'email', 'status', 'createdAt'],
+    listSearchableFields: ['name', 'email', 'vehicleTitle'],
     group: 'Enquiries',
   },
   fields: [

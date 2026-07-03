@@ -11,6 +11,7 @@ export const SellerApplications: CollectionConfig = {
   admin: {
     useAsTitle: 'vehicleTitle',
     defaultColumns: ['vehicleTitle', 'sellerName', 'sellerType', 'status', 'createdAt'],
+    listSearchableFields: ['sellerName', 'sellerEmail', 'vehicleTitle'],
     group: 'Applications',
   },
   fields: [

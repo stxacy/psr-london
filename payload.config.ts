@@ -5,6 +5,7 @@ import path from 'path'
 import { fileURLToPath } from 'url'
 
 import { Users } from './src/collections/Users'
+import { Media } from './src/collections/Media'
 import { Vehicles } from './src/collections/Vehicles'
 import { SellerApplications } from './src/collections/SellerApplications'
 import { Enquiries } from './src/collections/Enquiries'
@@ -19,7 +20,7 @@ export default buildConfig({
       baseDir: path.resolve(dirname),
     },
   },
-  collections: [Users, Vehicles, SellerApplications, Enquiries],
+  collections: [Users, Media, Vehicles, SellerApplications, Enquiries],
   editor: lexicalEditor(),
   secret: process.env.PAYLOAD_SECRET || '',
   typescript: {

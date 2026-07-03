@@ -5,6 +5,8 @@ export const Vehicles: CollectionConfig = {
   admin: {
     useAsTitle: 'title',
     defaultColumns: ['title', 'make', 'price', 'status', 'featured'],
+    listSearchableFields: ['title', 'make', 'model', 'slug'],
+    group: 'Inventory',
   },
   access: {
     read: ({ req: { user } }) => {
@@ -110,6 +112,13 @@ export const Vehicles: CollectionConfig = {
       name: 'sellerName',
       type: 'text',
       admin: { placeholder: 'e.g. Porsche Centre London (leave blank for private)' },
+    },
+    {
+      name: 'images',
+      type: 'upload',
+      relationTo: 'media',
+      hasMany: true,
+      admin: { description: 'Upload vehicle photos — first image is used as the hero and card thumbnail' },
     },
     {
       name: 'description',
