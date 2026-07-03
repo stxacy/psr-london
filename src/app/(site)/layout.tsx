@@ -2,6 +2,7 @@ import type { Metadata } from 'next'
 import { Cormorant_Garamond, Inter } from 'next/font/google'
 import Header from '@/components/layout/Header'
 import Footer from '@/components/layout/Footer'
+import CustomCursor from '@/components/layout/CustomCursor'
 import '../globals.css'
 
 const cormorant = Cormorant_Garamond({
@@ -42,6 +43,7 @@ export default function SiteLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="en" className={`${cormorant.variable} ${inter.variable}`}>
       <body className="min-h-screen flex flex-col bg-psr-black text-psr-cream">
+        <CustomCursor />
         <Header />
         <main className="flex-1">{children}</main>
         <Footer />
