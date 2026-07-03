@@ -6,23 +6,28 @@ export const Vehicles: CollectionConfig = {
     useAsTitle: 'title',
     defaultColumns: ['title', 'make', 'price', 'status', 'featured'],
   },
+  access: {
+    read: ({ req: { user } }) => {
+      if (user) return true
+      return { status: { equals: 'live' } }
+    },
+    create: ({ req: { user } }) => !!user,
+    update: ({ req: { user } }) => !!user,
+    delete: ({ req: { user } }) => !!user,
+  },
   fields: [
     {
       name: 'title',
       type: 'text',
       required: true,
-      admin: {
-        description: 'e.g. 2022 Porsche 911 GT3',
-      },
+      admin: { description: 'e.g. 2022 Porsche 911 GT3' },
     },
     {
       name: 'slug',
       type: 'text',
       required: true,
       unique: true,
-      admin: {
-        description: 'URL-friendly identifier e.g. porsche-911-gt3-2022',
-      },
+      admin: { description: 'URL-friendly identifier e.g. porsche-911-gt3-2022' },
     },
     {
       name: 'status',
@@ -39,9 +44,7 @@ export const Vehicles: CollectionConfig = {
       name: 'featured',
       type: 'checkbox',
       defaultValue: false,
-      admin: {
-        description: 'Show on homepage featured section',
-      },
+      admin: { description: 'Show on homepage featured section' },
     },
     {
       type: 'row',
@@ -50,6 +53,11 @@ export const Vehicles: CollectionConfig = {
         { name: 'model', type: 'text', required: true },
         { name: 'year', type: 'number', required: true },
       ],
+    },
+    {
+      name: 'variant',
+      type: 'text',
+      admin: { description: 'e.g. GT3 PDK, S-line, AMG Line' },
     },
     {
       type: 'row',
@@ -81,15 +89,27 @@ export const Vehicles: CollectionConfig = {
     {
       type: 'row',
       fields: [
+        { name: 'transmission', type: 'select', options: ['Automatic', 'Manual'] },
         {
-          name: 'transmission',
+          name: 'fuelType',
           type: 'select',
-          options: ['Automatic', 'Manual'],
+          options: ['Petrol', 'Diesel', 'Electric', 'Hybrid', 'Plug-in Hybrid'],
         },
         { name: 'colour', type: 'text' },
+      ],
+    },
+    {
+      type: 'row',
+      fields: [
         { name: 'engineSize', type: 'text', admin: { placeholder: 'e.g. 4.0L' } },
         { name: 'power', type: 'text', admin: { placeholder: 'e.g. 510 bhp' } },
+        { name: 'location', type: 'text', admin: { placeholder: 'e.g. London' } },
       ],
+    },
+    {
+      name: 'sellerName',
+      type: 'text',
+      admin: { placeholder: 'e.g. Porsche Centre London (leave blank for private)' },
     },
     {
       name: 'description',
@@ -98,9 +118,7 @@ export const Vehicles: CollectionConfig = {
     {
       name: 'specs',
       type: 'array',
-      admin: {
-        description: 'Key specification pairs shown on the detail page',
-      },
+      admin: { description: 'Key specification pairs shown on the detail page' },
       fields: [
         { name: 'label', type: 'text', required: true },
         { name: 'value', type: 'text', required: true },

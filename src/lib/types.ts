@@ -1,25 +1,34 @@
 export type SellerType = 'private' | 'dealer';
 
+export type VehicleSpec = {
+  label: string;
+  value: string;
+  id?: string;
+};
+
 export type Vehicle = {
-  id: string;
+  id: number | string;
   slug: string;
+  title: string;
+  status: 'draft' | 'live' | 'sold';
+  featured: boolean;
   make: string;
   model: string;
-  variant: string;
   year: number;
+  variant?: string;
   mileage: number;
   price: number;
-  color: string;
+  colour?: string;
   bodyType: string;
-  transmission: string;
-  fuelType: string;
-  engineSize: string;
-  power: string;
   sellerType: SellerType;
-  sellerName: string;
-  location: string;
-  featured: boolean;
-  description: string;
-  specs: Record<string, string>;
-  gradient: string;
+  transmission?: string;
+  fuelType?: string;
+  engineSize?: string;
+  power?: string;
+  location?: string;
+  sellerName?: string;
+  description?: string;
+  specs?: VehicleSpec[];
+  createdAt?: string;
+  updatedAt?: string;
 };

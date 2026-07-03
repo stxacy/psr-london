@@ -11,10 +11,7 @@ export default function VehicleCard({ vehicle }: Props) {
       href={`/vehicles/${vehicle.slug}`}
       className="group bg-psr-black block border border-white/5 hover:border-psr-gold/25 transition-colors duration-400"
     >
-      <div
-        className="relative aspect-[4/3] overflow-hidden"
-        style={{ background: vehicle.gradient }}
-      >
+      <div className="relative aspect-[4/3] overflow-hidden bg-[#0d0d0d]">
         <div className="absolute inset-0 bg-psr-black/0 group-hover:bg-psr-black/15 transition-colors duration-500" />
         <div className="absolute inset-0 flex items-center justify-center">
           <span className="font-serif text-7xl text-psr-cream/8 tracking-[0.3em] select-none">
@@ -41,16 +38,26 @@ export default function VehicleCard({ vehicle }: Props) {
         <h3 className="font-serif text-2xl text-psr-cream font-light leading-snug">
           {vehicle.make} {vehicle.model}
         </h3>
-        <p className="text-xs text-psr-grey-light font-sans mt-0.5 mb-4">
-          {vehicle.variant}
-        </p>
+        {vehicle.variant && (
+          <p className="text-xs text-psr-grey-light font-sans mt-0.5 mb-4">
+            {vehicle.variant}
+          </p>
+        )}
 
-        <div className="flex items-center gap-3 text-[11px] text-psr-grey-light font-sans mb-5">
+        <div className="flex items-center gap-3 text-[11px] text-psr-grey-light font-sans mb-5 mt-4">
           <span>{vehicle.mileage.toLocaleString()} mi</span>
-          <span className="w-1 h-1 rounded-full bg-psr-grey-mid flex-shrink-0" />
-          <span>{vehicle.transmission}</span>
-          <span className="w-1 h-1 rounded-full bg-psr-grey-mid flex-shrink-0" />
-          <span>{vehicle.location}</span>
+          {vehicle.transmission && (
+            <>
+              <span className="w-1 h-1 rounded-full bg-psr-grey-mid flex-shrink-0" />
+              <span>{vehicle.transmission}</span>
+            </>
+          )}
+          {vehicle.location && (
+            <>
+              <span className="w-1 h-1 rounded-full bg-psr-grey-mid flex-shrink-0" />
+              <span>{vehicle.location}</span>
+            </>
+          )}
         </div>
 
         <div className="flex items-center justify-between border-t border-white/5 pt-4">

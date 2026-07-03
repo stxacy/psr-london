@@ -43,15 +43,46 @@ const empty: FormState = {
 export default function SellPage() {
   const [form, setForm] = useState<FormState>(empty);
   const [submitted, setSubmitted] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(false);
   const [step, setStep] = useState<1 | 2>(1);
 
   function set(key: keyof FormState, value: string | boolean) {
     setForm((prev) => ({ ...prev, [key]: value }));
   }
 
-  function handleSubmit(e: React.FormEvent) {
+  async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    setSubmitted(true);
+    setLoading(true);
+    setError(false);
+    try {
+      const res = await fetch('/api/seller-applications', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          sellerName: `${form.firstName} ${form.lastName}`.trim(),
+          sellerEmail: form.email,
+          sellerPhone: form.phone,
+          sellerType: form.sellerType,
+          vehicleTitle: [form.year, form.make, form.model, form.variant]
+            .filter(Boolean)
+            .join(' '),
+          vehicleMake: form.make,
+          vehicleModel: form.model,
+          vehicleYear: parseInt(form.year, 10),
+          vehicleMileage: parseInt(form.mileage, 10),
+          askingPrice: parseInt(form.askingPrice, 10),
+          vehicleColour: form.color,
+          vehicleDescription: form.description,
+        }),
+      });
+      if (!res.ok) throw new Error('Submission failed');
+      setSubmitted(true);
+    } catch {
+      setError(true);
+    } finally {
+      setLoading(false);
+    }
   }
 
   if (submitted) {
@@ -106,7 +137,7 @@ export default function SellPage() {
             </div>
 
             <form onSubmit={handleSubmit}>
-              {step === 1 && (
+                {step === 1 && (
                 <Step1
                   form={form}
                   set={set}
@@ -118,6 +149,8 @@ export default function SellPage() {
                   form={form}
                   set={set}
                   onBack={() => setStep(1)}
+                  loading={loading}
+                  error={error}
                 />
               )}
             </form>
@@ -290,10 +323,14 @@ function Step2({
   form,
   set,
   onBack,
+  loading,
+  error,
 }: {
   form: FormState;
   set: (k: keyof FormState, v: string | boolean) => void;
   onBack: () => void;
+  loading: boolean;
+  error: boolean;
 }) {
   return (
     <div>
@@ -458,17 +495,25 @@ function Step2({
           </p>
         </div>
 
+        {error && (
+          <p className="text-[11px] tracking-[0.15em] uppercase text-red-400 font-sans">
+            Something went wrong — please try again.
+          </p>
+        )}
+
         <div className="flex flex-col sm:flex-row gap-4 pt-2">
           <button
             type="button"
             onClick={onBack}
-            className="px-8 py-4 border border-white/15 text-psr-cream text-[11px] tracking-[0.25em] uppercase font-sans hover:border-white/30 transition-colors"
+            disabled={loading}
+            className="px-8 py-4 border border-white/15 text-psr-cream text-[11px] tracking-[0.25em] uppercase font-sans hover:border-white/30 transition-colors disabled:opacity-40"
           >
             Back
           </button>
           <button
             type="submit"
             disabled={
+              loading ||
               !form.make ||
               !form.model ||
               !form.year ||
@@ -478,7 +523,7 @@ function Step2({
             }
             className="flex-1 sm:flex-none sm:px-12 py-4 bg-psr-gold text-psr-black text-[11px] tracking-[0.25em] uppercase font-sans font-medium hover:bg-psr-gold-light transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
           >
-            Submit Application
+            {loading ? 'Submitting…' : 'Submit Application'}
           </button>
         </div>
       </div>

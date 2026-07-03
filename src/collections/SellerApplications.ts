@@ -2,6 +2,12 @@ import type { CollectionConfig } from 'payload'
 
 export const SellerApplications: CollectionConfig = {
   slug: 'seller-applications',
+  access: {
+    create: () => true,
+    read: ({ req: { user } }) => !!user,
+    update: ({ req: { user } }) => !!user,
+    delete: ({ req: { user } }) => !!user,
+  },
   admin: {
     useAsTitle: 'vehicleTitle',
     defaultColumns: ['vehicleTitle', 'sellerName', 'sellerType', 'status', 'createdAt'],

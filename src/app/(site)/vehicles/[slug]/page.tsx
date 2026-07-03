@@ -1,37 +1,48 @@
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
-import { vehicles } from '@/lib/mock-data';
+import { getPayloadClient } from '@/lib/payload'
+import type { Vehicle } from '@/lib/types'
 
 type Props = {
   params: Promise<{ slug: string }>;
 };
 
-export async function generateStaticParams() {
-  return vehicles.map((v) => ({ slug: v.slug }));
+async function getVehicle(slug: string): Promise<Vehicle | null> {
+  const payload = await getPayloadClient()
+  const { docs } = await payload.find({
+    collection: 'vehicles',
+    where: {
+      and: [
+        { slug: { equals: slug } },
+        { status: { equals: 'live' } },
+      ],
+    },
+    limit: 1,
+  })
+  return (docs[0] as unknown as Vehicle) ?? null
 }
 
 export async function generateMetadata({ params }: Props) {
   const { slug } = await params;
-  const vehicle = vehicles.find((v) => v.slug === slug);
+  const vehicle = await getVehicle(slug);
   if (!vehicle) return {};
   return {
     title: `${vehicle.year} ${vehicle.make} ${vehicle.model} — PSR LONDON`,
-    description: vehicle.description.slice(0, 155),
+    description: vehicle.description?.slice(0, 155) ?? '',
   };
 }
 
 export default async function VehicleDetailPage({ params }: Props) {
   const { slug } = await params;
-  const vehicle = vehicles.find((v) => v.slug === slug);
+  const vehicle = await getVehicle(slug);
   if (!vehicle) notFound();
+
+  const listingRef = `PSR-${String(vehicle.id).padStart(4, '0')}`;
 
   return (
     <>
       <div className="pt-24 lg:pt-28">
-        <div
-          className="w-full aspect-[16/7] lg:aspect-[21/8] relative"
-          style={{ background: vehicle.gradient }}
-        >
+        <div className="w-full aspect-[16/7] lg:aspect-[21/8] relative bg-[#0d0d0d]">
           <div className="absolute inset-0 bg-gradient-to-t from-psr-black via-psr-black/20 to-transparent" />
           <div className="absolute inset-0 flex items-center justify-center select-none pointer-events-none">
             <span className="font-serif text-[15vw] text-psr-cream/[0.04] tracking-[0.3em]">
@@ -66,58 +77,68 @@ export default async function VehicleDetailPage({ params }: Props) {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-12 lg:gap-16">
           <div className="lg:col-span-2 order-last lg:order-first">
             <p className="text-[11px] tracking-[0.3em] uppercase text-psr-grey-light font-sans mb-2">
-              {vehicle.year} · {vehicle.bodyType} · {vehicle.location}
+              {vehicle.year}
+              {vehicle.bodyType && ` · ${vehicle.bodyType}`}
+              {vehicle.location && ` · ${vehicle.location}`}
             </p>
             <h1 className="font-serif text-5xl lg:text-6xl text-psr-cream font-light leading-tight mb-2">
               {vehicle.make} {vehicle.model}
             </h1>
-            <p className="font-sans text-psr-grey-light text-sm mb-8">{vehicle.variant}</p>
+            {vehicle.variant && (
+              <p className="font-sans text-psr-grey-light text-sm mb-8">{vehicle.variant}</p>
+            )}
 
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-x-4 gap-y-6 mb-12 pb-12 border-b border-white/5">
               {[
                 { label: 'Mileage', value: `${vehicle.mileage.toLocaleString()} mi` },
-                { label: 'Transmission', value: vehicle.transmission },
-                { label: 'Fuel', value: vehicle.fuelType },
-                { label: 'Power', value: vehicle.power },
-                { label: 'Engine', value: vehicle.engineSize },
-                { label: 'Colour', value: vehicle.color },
-                { label: 'Drive', value: vehicle.specs['Drive'] ?? '—' },
-                { label: 'Top Speed', value: vehicle.specs['Top Speed'] ?? '—' },
-              ].map((item) => (
-                <div key={item.label}>
-                  <p className="text-[10px] tracking-[0.2em] uppercase text-psr-grey-mid font-sans mb-1">
-                    {item.label}
-                  </p>
-                  <p className="text-sm text-psr-cream font-sans">{item.value}</p>
-                </div>
-              ))}
-            </div>
-
-            <div className="mb-12 pb-12 border-b border-white/5">
-              <h2 className="font-serif text-2xl text-psr-cream font-light mb-5">
-                About This Vehicle
-              </h2>
-              <p className="font-sans text-sm text-psr-grey-light leading-relaxed">
-                {vehicle.description}
-              </p>
-            </div>
-
-            <div>
-              <h2 className="font-serif text-2xl text-psr-cream font-light mb-5">
-                Full Specification
-              </h2>
-              <div className="divide-y divide-white/5">
-                {Object.entries(vehicle.specs).map(([key, val]) => (
-                  <div
-                    key={key}
-                    className="flex items-center justify-between py-3.5"
-                  >
-                    <span className="text-xs text-psr-grey-light font-sans">{key}</span>
-                    <span className="text-xs text-psr-cream font-sans text-right">{val}</span>
+                vehicle.transmission && { label: 'Transmission', value: vehicle.transmission },
+                vehicle.fuelType && { label: 'Fuel', value: vehicle.fuelType },
+                vehicle.power && { label: 'Power', value: vehicle.power },
+                vehicle.engineSize && { label: 'Engine', value: vehicle.engineSize },
+                vehicle.colour && { label: 'Colour', value: vehicle.colour },
+              ]
+                .filter(Boolean)
+                .map((item) => (
+                  <div key={(item as { label: string }).label}>
+                    <p className="text-[10px] tracking-[0.2em] uppercase text-psr-grey-mid font-sans mb-1">
+                      {(item as { label: string; value: string }).label}
+                    </p>
+                    <p className="text-sm text-psr-cream font-sans">
+                      {(item as { label: string; value: string }).value}
+                    </p>
                   </div>
                 ))}
-              </div>
             </div>
+
+            {vehicle.description && (
+              <div className="mb-12 pb-12 border-b border-white/5">
+                <h2 className="font-serif text-2xl text-psr-cream font-light mb-5">
+                  About This Vehicle
+                </h2>
+                <p className="font-sans text-sm text-psr-grey-light leading-relaxed">
+                  {vehicle.description}
+                </p>
+              </div>
+            )}
+
+            {vehicle.specs && vehicle.specs.length > 0 && (
+              <div>
+                <h2 className="font-serif text-2xl text-psr-cream font-light mb-5">
+                  Full Specification
+                </h2>
+                <div className="divide-y divide-white/5">
+                  {vehicle.specs.map((spec) => (
+                    <div
+                      key={spec.id ?? spec.label}
+                      className="flex items-center justify-between py-3.5"
+                    >
+                      <span className="text-xs text-psr-grey-light font-sans">{spec.label}</span>
+                      <span className="text-xs text-psr-cream font-sans text-right">{spec.value}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
 
           <div className="lg:col-span-1 order-first lg:order-last">
@@ -130,10 +151,10 @@ export default async function VehicleDetailPage({ params }: Props) {
                   £{vehicle.price.toLocaleString()}
                 </p>
                 <p className="text-[11px] text-psr-grey-light font-sans">
-                  {vehicle.sellerType === 'dealer'
+                  {vehicle.sellerType === 'dealer' && vehicle.sellerName
                     ? vehicle.sellerName
-                    : 'Private Seller'}{' '}
-                  · {vehicle.location}
+                    : 'Private Seller'}
+                  {vehicle.location && ` · ${vehicle.location}`}
                 </p>
 
                 <div className="mt-6 space-y-3">
@@ -169,13 +190,19 @@ export default async function VehicleDetailPage({ params }: Props) {
                   Reference
                 </p>
                 <p className="text-xs text-psr-grey-light font-sans mb-1">
-                  Listing ID:{' '}
-                  <span className="text-psr-cream">PSR-{vehicle.id.padStart(4, '0')}</span>
+                  Listing ID: <span className="text-psr-cream">{listingRef}</span>
                 </p>
-                <p className="text-xs text-psr-grey-light font-sans">
-                  Listed:{' '}
-                  <span className="text-psr-cream">June 2025</span>
-                </p>
+                {vehicle.createdAt && (
+                  <p className="text-xs text-psr-grey-light font-sans">
+                    Listed:{' '}
+                    <span className="text-psr-cream">
+                      {new Date(vehicle.createdAt).toLocaleDateString('en-GB', {
+                        month: 'long',
+                        year: 'numeric',
+                      })}
+                    </span>
+                  </p>
+                )}
               </div>
             </div>
           </div>
